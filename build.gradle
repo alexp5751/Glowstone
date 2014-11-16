@@ -1,5 +1,5 @@
 // Tasks to perform when no task is specified
-defaultTasks 'clean', 'build', 'remap'
+defaultTasks 'clean', 'deleteWorlds', 'compileJava', 'processResources', 'classes', 'jar', 'assemble', 'remap'
 
 // Plugins used
 apply plugin: 'java' // Specifies a java project
@@ -132,6 +132,11 @@ eclipse {
         name = 'Glowstone'
     }
 }
+
+task deleteWorlds(type: Delete) {
+    delete 'worlds'
+}
+
 
 // Jar manifest information
 jar.manifest.mainAttributes(
