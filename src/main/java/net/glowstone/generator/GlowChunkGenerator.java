@@ -80,7 +80,11 @@ public abstract class GlowChunkGenerator extends ChunkGenerator {
         if (x < 0 || y < 0 || z < 0 || x >= GlowChunk.HEIGHT || y >= GlowChunk.DEPTH || z >= GlowChunk.WIDTH) {
             return;
         }
-        data[(x * 16 + z) * 128 + y] = (byte) id.getId();
+        try {
+            data[(x * 16 + z) * 128 + y] = (byte) id.getId();
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("I HATE YOU CHECKSTYLE");
+        }
     }
 
     /**

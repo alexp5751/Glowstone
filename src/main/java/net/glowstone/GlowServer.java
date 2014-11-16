@@ -1167,7 +1167,7 @@ public final class GlowServer implements Server {
         } else if (environment == Environment.THE_END) {
             return new net.glowstone.generator.CakeTownGenerator();
         } else {
-            return new net.glowstone.generator.SurfaceGenerator();
+            return new net.glowstone.generator.FunctionalGenerator();
         }
     }
 
