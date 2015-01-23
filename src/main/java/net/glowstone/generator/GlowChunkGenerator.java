@@ -17,7 +17,7 @@ import java.util.*;
 public abstract class GlowChunkGenerator extends ChunkGenerator {
 
     // distinct from GlowChunk.DEPTH, only used in the wgen
-    protected static final int WORLD_DEPTH = 128;
+    protected static final int WORLD_DEPTH = 256;
 
     private static final Set<Material> noSpawnFloors = new HashSet<>(Arrays.asList(Material.FIRE, Material.CACTUS, Material.LEAVES));
     private final Map<String, Map<String, OctaveGenerator>> octaveCache = new HashMap<>();
@@ -71,6 +71,7 @@ public abstract class GlowChunkGenerator extends ChunkGenerator {
      * @param id The block type.
      */
     protected void set(byte[] data, int x, int y, int z, Material id) {
+    	
         if (data == null) {
             throw new IllegalStateException();
         }
@@ -78,10 +79,10 @@ public abstract class GlowChunkGenerator extends ChunkGenerator {
             throw new IllegalArgumentException("Unknown block type!");
         }
         if (x < 0 || y < 0 || z < 0 || x >= GlowChunk.HEIGHT || y >= GlowChunk.DEPTH || z >= GlowChunk.WIDTH) {
-            return;
+        	return;
         }
         try {
-            data[(x * 16 + z) * 128 + y] = (byte) id.getId();
+            data[(x * 16 + z) * WORLD_DEPTH + y] = (byte) id.getId();
         } catch (IndexOutOfBoundsException e) {
             System.out.println("I HATE YOU CHECKSTYLE");
         }
@@ -102,7 +103,7 @@ public abstract class GlowChunkGenerator extends ChunkGenerator {
         if (x < 0 || y < 0 || z < 0 || x >= GlowChunk.HEIGHT || y >= GlowChunk.DEPTH || z >= GlowChunk.WIDTH) {
             return Material.AIR;
         }
-        return Material.getMaterial(data[(x * 16 + z) * 128 + y]);
+        return Material.getMaterial(data[(x * 16 + z) * WORLD_DEPTH + y]);
     }
 
     @Override

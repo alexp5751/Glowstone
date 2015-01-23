@@ -1,7 +1,9 @@
 package net.glowstone;
 
 import net.glowstone.constants.GlowBiome;
+import net.glowstone.generator.FunctionalGenerator;
 import net.glowstone.io.ChunkIoService;
+
 import org.bukkit.block.Biome;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
@@ -34,7 +36,7 @@ public final class ChunkManager {
     /**
      * The chunk generator used to generate new chunks.
      */
-    private final ChunkGenerator generator;
+    private static ChunkGenerator generator;
 
     /**
      * A map of chunks currently loaded in memory.
@@ -230,7 +232,7 @@ public final class ChunkManager {
     /**
      * Initialize a single chunk from the chunk generator.
      */
-    private void generateChunk(GlowChunk chunk, int x, int z) {
+    public void generateChunk(GlowChunk chunk, int x, int z) {
         Random random = new Random((long) x * 341873128712L + (long) z * 132897987541L);
         BiomeGrid biomes = new BiomeGrid();
 
@@ -274,14 +276,14 @@ public final class ChunkManager {
 
         // deprecated flat generation
         byte[] types = generator.generate(world, random, x, z);
-        GlowChunk.ChunkSection[] sections = new GlowChunk.ChunkSection[8];
+        GlowChunk.ChunkSection[] sections = new GlowChunk.ChunkSection[16];
         for (int sy = 0; sy < sections.length; ++sy) {
             GlowChunk.ChunkSection sec = new GlowChunk.ChunkSection();
             int by = 16 * sy;
             for (int cx = 0; cx < 16; ++cx) {
                 for (int cz = 0; cz < 16; ++cz) {
                     for (int cy = by; cy < by + 16; ++cy) {
-                        char type = (char) types[(cx * 16 + cz) * 128 + cy];
+                        char type = (char) types[(cx * 16 + cz) * 256 + cy];
                         sec.types[sec.index(cx, cy, cz)] = (char) (type << 4);
                     }
                 }
@@ -312,6 +314,26 @@ public final class ChunkManager {
             populateChunk(x, z, false);  // should this be forced?
         } catch (Throwable ex) {
             GlowServer.logger.log(Level.SEVERE, "Error while regenerating chunk (" + x + "," + z + ")", ex);
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean forceUnloadAndRegenerate(int x, int z) {
+    	GlowChunk chunk = getChunk(x, z);
+    	
+    	chunk.forceUnload();
+    	
+    	locks.values().clear();
+    	chunks.values().clear();
+    	
+    	chunk.setPopulated(false);
+    	
+    	
+    	try {
+            generateChunk(chunk, x, z);
+        } catch (Throwable ex) {
+            GlowServer.logger.log(Level.SEVERE, "Error while unsafely regenerating chunk (" + x + "," + z + ")", ex);
             return false;
         }
         return true;
@@ -426,5 +448,11 @@ public final class ChunkManager {
         public Iterator<GlowChunk.Key> iterator() {
             return keys.iterator();
         }
+
     }
+
+	public void setGenerator(ChunkGenerator gen) {
+		generator = gen;
+		
+	}
 }

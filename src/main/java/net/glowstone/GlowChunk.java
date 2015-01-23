@@ -333,6 +333,13 @@ public final class GlowChunk implements Chunk {
         tileEntities.clear();
         return true;
     }
+    
+    public boolean forceUnload() {
+    	sections = null;
+    	biomes = null;
+    	tileEntities.clear();
+    	return true;
+    }
 
     /**
      * Initialize this chunk from the given sections.
